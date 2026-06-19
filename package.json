@@ -13,6 +13,8 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@azure/identity": "^4.13.1",
+    "@azure/playwright": "^1.1.6",
     "@cucumber/cucumber": "*",
     "@playwright/test": "^1.59.1",
     "@zerostep/playwright": "^0.1.5",
