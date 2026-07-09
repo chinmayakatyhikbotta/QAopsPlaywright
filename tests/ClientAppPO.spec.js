@@ -37,6 +37,8 @@ async function placeOrderE2E(page, credentials, productName) {
 }
 
 test.describe('@Smoke Client App E2E', () => {
+  test.describe.configure({ mode: 'serial' });
+
   test.skip(
     !hasClientAppCredentials(),
     'Set CLIENT_APP_EMAIL and CLIENT_APP_PASSWORD in .env'

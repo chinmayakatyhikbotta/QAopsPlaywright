@@ -7,7 +7,7 @@
     "test": "playwright test",
     "test:smoke": "playwright test --grep @Smoke",
     "test:web": "playwright test --grep @Web",
-    "test:api": "playwright test --grep @API",
+    "test:ci": "playwright test --grep \"@Smoke|@Web|@API\"",
     "report": "playwright show-report",
     "regression": "playwright test",
     "webTests": "playwright test --grep @Web",
