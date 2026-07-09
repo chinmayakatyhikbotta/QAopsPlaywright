@@ -4,10 +4,15 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "regression": "npx playwright test",
-    "webTests": "npx playwright test --grep @Web",
-    "APITests": "npx playwright test --grep @API",
-    "SafariNewConfig": "npx playwright test --config playwright.config1.js --project=safari"
+    "test": "playwright test",
+    "test:smoke": "playwright test --grep @Smoke",
+    "test:web": "playwright test --grep @Web",
+    "test:api": "playwright test --grep @API",
+    "report": "playwright show-report",
+    "regression": "playwright test",
+    "webTests": "playwright test --grep @Web",
+    "APITests": "playwright test --grep @API",
+    "SafariNewConfig": "playwright test --config playwright.config1.js --project=safari"
   },
   "keywords": [],
   "author": "",
@@ -19,6 +24,7 @@
     "@playwright/test": "^1.59.1",
     "@zerostep/playwright": "^0.1.5",
     "allure-playwright": "^2.0.0-beta.15",
+    "dotenv": "^16.6.1",
     "typescript": "^5.4.5"
   },
   "dependencies": {

@@ -9,29 +9,25 @@ class APiUtils {
             data: this.loginPayLoad
         }); // 200, 201
         const loginResponseJson = await loginResponse.json();
-        const token = loginResponseJson.token;
-        console.log(token);
-        return token;
+        return loginResponseJson.token;
     }
 
-    async createOrder(orderPayLoad) {
-        let response = {};
-        response.token = await this.getToken();
-        const orderResponse = await this.apiContext.post("https://rahulshettyacademy.com/api/ecom/order/create-order", {
-            data: orderPayLoad,
-            headers: {
-                'Authorization': response.token,
-                'Content-Type': 'application/json'
-            }
-        });
+async createOrder(orderPayLoad) {
+    let response = {};
+    response.token = await this.getToken();
+    const orderResponse = await this.apiContext.post("https://rahulshettyacademy.com/api/ecom/order/create-order", {
+        data: orderPayLoad,
+        headers: {
+            'Authorization': response.token,
+            'Content-Type': 'application/json'
+        }
+    });
 
-        const orderResponseJson = await orderResponse.json();
-        console.log(orderResponseJson);
-        const orderId = orderResponseJson.orders[0];
-        response.orderId = orderId;
-
-        return response;
-    }
+    const orderResponseJson = await orderResponse.json();
+    response.orderId = orderResponseJson.orders[0];
+    
+    return response;
+}
 }
 
 module.exports = { APiUtils };

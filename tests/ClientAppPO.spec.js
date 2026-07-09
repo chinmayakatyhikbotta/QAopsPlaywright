@@ -1,70 +1,62 @@
- const {test, expect} = require('@playwright/test');
- const {customtest} = require('../utils/test-base');
+const { test, expect } = require('@playwright/test');
+const { customtest } = require('../utils/test-base');
+const { POManager } = require('../pageobjects/POManager');
+const {
+  getClientAppCredentials,
+  hasClientAppCredentials,
+} = require('../utils/env');
 
- const {POManager} = require('../pageobjects/POManager');
- //Json->string->js object
- const dataset =  JSON.parse(JSON.stringify(require("../utils/placeorderTestData.json")));
+const dataset = JSON.parse(
+  JSON.stringify(require('../utils/placeorderTestData.json'))
+);
 
- 
-for(const data of dataset)
-{
- test(`@Webs Client App login for ${data.productName}`, async ({page})=>
- {
-   const poManager = new POManager(page);
-    //js file- Login js, DashboardPage
-     const products = page.locator(".card-body");
-     const loginPage = poManager.getLoginPage();
-     await loginPage.goTo();
-     await loginPage.validLogin(data.username,data.password);
-     const dashboardPage = poManager.getDashboardPage();
-     await dashboardPage.searchProductAddCart(data.productName);
-     await dashboardPage.navigateToCart();
+async function placeOrderE2E(page, credentials, productName) {
+  const poManager = new POManager(page);
+  const loginPage = poManager.getLoginPage();
+  await loginPage.goTo();
+  await loginPage.validLogin(credentials.userEmail, credentials.userPassword);
 
-    const cartPage = poManager.getCartPage();
-    await cartPage.VerifyProductIsDisplayed(data.productName);
-    await cartPage.Checkout();
+  const dashboardPage = poManager.getDashboardPage();
+  await dashboardPage.searchProductAddCart(productName);
+  await dashboardPage.navigateToCart();
 
-    const ordersReviewPage = poManager.getOrdersReviewPage();
-    await ordersReviewPage.searchCountryAndSelect("ind","India");
-    const orderId = await ordersReviewPage.SubmitAndGetOrderId();
-   console.log(orderId);
-   await dashboardPage.navigateToOrders();
-   const ordersHistoryPage = poManager.getOrdersHistoryPage();
-   await ordersHistoryPage.searchOrderAndSelect(orderId);
-   expect(orderId.includes(await ordersHistoryPage.getOrderId())).toBeTruthy();
+  const cartPage = poManager.getCartPage();
+  await cartPage.VerifyProductIsDisplayed(productName);
+  await cartPage.Checkout();
 
+  const ordersReviewPage = poManager.getOrdersReviewPage();
+  await ordersReviewPage.searchCountryAndSelect('ind', 'India');
+  const orderId = await ordersReviewPage.SubmitAndGetOrderId();
 
+  await dashboardPage.navigateToOrders();
+  const ordersHistoryPage = poManager.getOrdersHistoryPage();
+  await ordersHistoryPage.searchOrderAndSelect(orderId);
 
-
-
- });
+  expect(orderId.includes(await ordersHistoryPage.getOrderId())).toBeTruthy();
+  return orderId;
 }
 
- customtest(`Client App login`, async ({page,testDataForOrder})=>
- {
-   const poManager = new POManager(page);
-    //js file- Login js, DashboardPage
-     const products = page.locator(".card-body");
-     const loginPage = poManager.getLoginPage();
-     await loginPage.goTo();
-     await loginPage.validLogin(testDataForOrder.username,testDataForOrder.password);
-     const dashboardPage = poManager.getDashboardPage();
-     await dashboardPage.searchProductAddCart(testDataForOrder.productName);
-     await dashboardPage.navigateToCart();
+test.describe('@Smoke Client App E2E', () => {
+  test.skip(
+    !hasClientAppCredentials(),
+    'Set CLIENT_APP_EMAIL and CLIENT_APP_PASSWORD in .env'
+  );
 
-    const cartPage = poManager.getCartPage();
-    await cartPage.VerifyProductIsDisplayed(testDataForOrder.productName);
-    await cartPage.Checkout();
+  for (const data of dataset) {
+    test(`@Web place order for ${data.productName}`, async ({ page }) => {
+      const credentials = getClientAppCredentials();
+      await placeOrderE2E(page, credentials, data.productName);
+    });
+  }
+});
 
-
-})
-//test files will trigger parallel
-//individual tests in the file will run in sequence
- 
-
- 
-
-
-
- 
-
+customtest('@Smoke @Web Client App order via fixture', async ({
+  page,
+  testDataForOrder,
+}) => {
+  const credentials = {
+    userEmail: testDataForOrder.username,
+    userPassword: testDataForOrder.password,
+  };
+  await placeOrderE2E(page, credentials, testDataForOrder.productName);
+});

@@ -1,32 +1,34 @@
 // @ts-check
-const { devices } = require('@playwright/test');
+require('dotenv').config();
+const { defineConfig, devices } = require('@playwright/test');
 
-const config = {
+module.exports = defineConfig({
   testDir: './tests',
-  testMatch: '**/*.spec.js',
-  retries :0,
-  
-  /* Maximum time one test can run for. */
-  timeout: 30 * 1000,
+  testMatch: '**/*.spec.{js,ts}',
+  fullyParallel: true,
+  forbidOnly: !!process.env.CI,
+  retries: process.env.CI ? 2 : 0,
+  workers: process.env.CI ? 2 : undefined,
+  timeout: process.env.CI ? 60 * 1000 : 30 * 1000,
   expect: {
-  
-    timeout: 5000
+    timeout: process.env.CI ? 10_000 : 5_000,
   },
-  
-  reporter: 'html',
-  /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
+  reporter: [
+    ['html', { open: 'never' }],
+    ['list'],
+  ],
   use: {
-
-    browserName : 'chromium',
-    headless : true,
-    screenshot : 'on',
-    trace : 'on',//off,on
-    
-    
-    
+    baseURL: 'https://rahulshettyacademy.com',
+    browserName: 'chromium',
+    headless: true,
+    screenshot: 'only-on-failure',
+    trace: 'retain-on-failure',
+    video: 'retain-on-failure',
   },
-
-
-};
-
-module.exports = config;
+  projects: [
+    {
+      name: 'chromium',
+      use: { ...devices['Desktop Chrome'] },
+    },
+  ],
+});
